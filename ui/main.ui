@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>709</width>
+    <height>517</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>709</width>
+    <height>517</height>
+   </size>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>7</width>
+    <height>5</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Tool config ELK</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QStackedWidget" name="main_windows">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>671</width>
+      <height>471</height>
+     </rect>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>7</width>
+      <height>5</height>
+     </size>
+    </property>
+    <property name="baseSize">
+     <size>
+      <width>7</width>
+      <height>5</height>
+     </size>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="page">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>140</y>
+        <width>161</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Memory</string>
+      </property>
+      <widget class="QCheckBox" name="memoryCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>31</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="memorySpinBox">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>20</y>
+         <width>81</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>100.000000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>21</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>%</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="endBtn">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>410</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>End</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>661</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Elasticsearch config</string>
+      </property>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>631</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Hosts       </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="eHosts"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>User name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="eUser"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="ePassword">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>140</y>
+        <width>161</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>CPU</string>
+      </property>
+      <widget class="QCheckBox" name="cpuCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>21</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="cpuSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>20</y>
+         <width>81</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>100.000000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>20</y>
+         <width>21</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>%</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="closeBtn">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>410</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Close</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>390</y>
+        <width>141</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Time</string>
+      </property>
+      <widget class="QDoubleSpinBox" name="timeSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>21</y>
+         <width>81</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>3600.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>10.000000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>20</y>
+         <width>55</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>seconds</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="startBtn">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>410</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_script">
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>80</y>
+        <width>661</width>
+        <height>151</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Metricbeat</string>
+      </property>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>35</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Modules</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="metric_other_module">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>60</y>
+         <width>211</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>351</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Resource</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="metric_resource"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>81</x>
+         <y>60</y>
+         <width>351</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="metric_system">
+          <property name="text">
+           <string>System</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="metric_tomcat">
+          <property name="text">
+           <string>Tomcat</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="metric_mysql">
+          <property name="text">
+           <string>MySQL</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="metric_mongo">
+          <property name="text">
+           <string>Mongodb</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="metric_other">
+          <property name="text">
+           <string>Other</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>110</y>
+         <width>511</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="metric_conf">
+          <property name="text">
+           <string>Config</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="metri_create">
+          <property name="text">
+           <string>Run Cmd test</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="metric_service">
+          <property name="text">
+           <string>Create service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="metric_start">
+          <property name="text">
+           <string>Start service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="metric_stop">
+          <property name="text">
+           <string>Stop service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="metric_del">
+          <property name="text">
+           <string>Delete service</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>20</y>
+         <width>261</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Service name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="metric_name"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>260</y>
+        <width>661</width>
+        <height>151</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Filebeat</string>
+      </property>
+      <widget class="QLabel" name="label_11">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>35</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Modules</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>81</x>
+         <y>60</y>
+         <width>261</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QCheckBox" name="filebeat_tomcat">
+          <property name="text">
+           <string>Tomcat</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="filebeat_mysql">
+          <property name="text">
+           <string>MySQL</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="filebeat_other">
+          <property name="text">
+           <string>Other input</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>110</y>
+         <width>511</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="filebeat_conf">
+          <property name="text">
+           <string>Config</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="filebeat_cmd">
+          <property name="text">
+           <string>Run Cmd test</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="filebeat_service">
+          <property name="text">
+           <string>Create service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="filebeat_start">
+          <property name="text">
+           <string>Start service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="filebeat_stop">
+          <property name="text">
+           <string>Stop service</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="filebeat_del">
+          <property name="text">
+           <string>Delete service</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>351</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Resource</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="filebeat_resource"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>20</y>
+         <width>261</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Service name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="filebeat_name"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>661</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>General</string>
+      </property>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>21</y>
+         <width>351</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Logstash service name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="g_logstash_name"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_2">
+     <widget class="QPushButton" name="pushButton">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>180</y>
+        <width>56</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>page 3</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>709</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Main">
+    <property name="title">
+     <string>&amp;Main</string>
+    </property>
+    <addaction name="action_Alert"/>
+   </widget>
+   <widget class="QMenu" name="menu_Config">
+    <property name="title">
+     <string>&amp;Config</string>
+    </property>
+    <addaction name="action_Logstash"/>
+    <addaction name="action_Beat"/>
+   </widget>
+   <addaction name="menu_Main"/>
+   <addaction name="menu_Config"/>
+  </widget>
+  <action name="action_Logstash">
+   <property name="text">
+    <string>&amp;Logstash</string>
+   </property>
+  </action>
+  <action name="action_Beat">
+   <property name="text">
+    <string>&amp;Beat</string>
+   </property>
+  </action>
+  <action name="action_metricbeat">
+   <property name="text">
+    <string>&amp;Metricbeat</string>
+   </property>
+  </action>
+  <action name="action_Alert">
+   <property name="text">
+    <string>&amp;Alert</string>
+   </property>
+  </action>
+  <action name="action_Elasticsearch">
+   <property name="text">
+    <string>&amp;Elasticsearch</string>
+   </property>
+  </action>
+  <action name="action_Kibana">
+   <property name="text">
+    <string>&amp;Kibana</string>
+   </property>
+  </action>
+  <action name="action_Logstash_2">
+   <property name="text">
+    <string>&amp;Logstash</string>
+   </property>
+  </action>
+  <action name="action_Filebeat_2">
+   <property name="text">
+    <string>&amp;Filebeat</string>
+   </property>
+  </action>
+  <action name="actionMetricbeat">
+   <property name="text">
+    <string>Metricbeat</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
