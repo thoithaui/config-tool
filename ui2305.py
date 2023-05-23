@@ -9,25 +9,40 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from threading import Thread
 import subprocess
+import pyuac
+import os
+import shutil
+from config_file import (
+    metricbeat_yml,
+    metricbeat_config_mysql,
+    metricbeat_module_mysql,
+    metricbeat_module_mongodb,
+    metricbeat_module_system,
+    metricbeat_module_tomcat,
+)
+from config_script import metric_create_ps1
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(709, 517)
+        MainWindow.resize(898, 678)
         MainWindow.setMinimumSize(QtCore.QSize(709, 517))
         MainWindow.setSizeIncrement(QtCore.QSize(7, 5))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.main_windows = QtWidgets.QStackedWidget(self.centralwidget)
-        self.main_windows.setGeometry(QtCore.QRect(10, 10, 671, 471))
+        self.main_windows.setGeometry(QtCore.QRect(10, 10, 871, 631))
         self.main_windows.setSizeIncrement(QtCore.QSize(7, 5))
         self.main_windows.setBaseSize(QtCore.QSize(7, 5))
         self.main_windows.setObjectName("main_windows")
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.groupBox = QtWidgets.QGroupBox(self.page)
-        self.groupBox.setGeometry(QtCore.QRect(10, 140, 161, 61))
+        self.groupBox.setGeometry(QtCore.QRect(10, 190, 161, 61))
         self.groupBox.setObjectName("groupBox")
         self.memoryCheckBox = QtWidgets.QCheckBox(self.groupBox)
         self.memoryCheckBox.setGeometry(QtCore.QRect(10, 20, 31, 20))
@@ -44,44 +59,44 @@ class Ui_MainWindow(object):
         self.label_2.setGeometry(QtCore.QRect(130, 20, 21, 21))
         self.label_2.setObjectName("label_2")
         self.endBtn = QtWidgets.QPushButton(self.page)
-        self.endBtn.setGeometry(QtCore.QRect(410, 410, 93, 28))
+        self.endBtn.setGeometry(QtCore.QRect(630, 560, 93, 28))
         self.endBtn.setObjectName("endBtn")
         self.groupBox_4 = QtWidgets.QGroupBox(self.page)
-        self.groupBox_4.setGeometry(QtCore.QRect(10, 20, 661, 111))
+        self.groupBox_4.setGeometry(QtCore.QRect(10, 20, 821, 161))
         self.groupBox_4.setObjectName("groupBox_4")
-        self.widget = QtWidgets.QWidget(self.groupBox_4)
-        self.widget.setGeometry(QtCore.QRect(10, 20, 631, 91))
-        self.widget.setObjectName("widget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
+        self.layoutWidget = QtWidgets.QWidget(self.groupBox_4)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 20, 801, 121))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label_4 = QtWidgets.QLabel(self.widget)
+        self.label_4 = QtWidgets.QLabel(self.layoutWidget)
         self.label_4.setObjectName("label_4")
         self.gridLayout_2.addWidget(self.label_4, 0, 0, 1, 1)
-        self.eHosts = QtWidgets.QLineEdit(self.widget)
+        self.eHosts = QtWidgets.QLineEdit(self.layoutWidget)
         self.eHosts.setObjectName("eHosts")
         self.gridLayout_2.addWidget(self.eHosts, 0, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout_2)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.label_5 = QtWidgets.QLabel(self.widget)
+        self.label_5 = QtWidgets.QLabel(self.layoutWidget)
         self.label_5.setObjectName("label_5")
         self.gridLayout.addWidget(self.label_5, 0, 0, 1, 1)
-        self.eUser = QtWidgets.QLineEdit(self.widget)
+        self.eUser = QtWidgets.QLineEdit(self.layoutWidget)
         self.eUser.setObjectName("eUser")
         self.gridLayout.addWidget(self.eUser, 0, 1, 1, 1)
-        self.label_6 = QtWidgets.QLabel(self.widget)
+        self.label_6 = QtWidgets.QLabel(self.layoutWidget)
         self.label_6.setObjectName("label_6")
         self.gridLayout.addWidget(self.label_6, 0, 2, 1, 1)
-        self.ePassword = QtWidgets.QLineEdit(self.widget)
+        self.ePassword = QtWidgets.QLineEdit(self.layoutWidget)
         self.ePassword.setText("")
         self.ePassword.setObjectName("ePassword")
         self.gridLayout.addWidget(self.ePassword, 0, 3, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         self.groupBox_2 = QtWidgets.QGroupBox(self.page)
-        self.groupBox_2.setGeometry(QtCore.QRect(230, 140, 161, 61))
+        self.groupBox_2.setGeometry(QtCore.QRect(210, 190, 161, 61))
         self.groupBox_2.setObjectName("groupBox_2")
         self.cpuCheckBox = QtWidgets.QCheckBox(self.groupBox_2)
         self.cpuCheckBox.setGeometry(QtCore.QRect(20, 20, 21, 20))
@@ -98,10 +113,10 @@ class Ui_MainWindow(object):
         self.label_3.setGeometry(QtCore.QRect(140, 20, 21, 21))
         self.label_3.setObjectName("label_3")
         self.closeBtn = QtWidgets.QPushButton(self.page)
-        self.closeBtn.setGeometry(QtCore.QRect(520, 410, 93, 28))
+        self.closeBtn.setGeometry(QtCore.QRect(740, 560, 93, 28))
         self.closeBtn.setObjectName("closeBtn")
         self.groupBox_3 = QtWidgets.QGroupBox(self.page)
-        self.groupBox_3.setGeometry(QtCore.QRect(30, 390, 141, 51))
+        self.groupBox_3.setGeometry(QtCore.QRect(30, 530, 171, 51))
         self.groupBox_3.setObjectName("groupBox_3")
         self.timeSpinBox = QtWidgets.QDoubleSpinBox(self.groupBox_3)
         self.timeSpinBox.setGeometry(QtCore.QRect(10, 21, 81, 20))
@@ -115,112 +130,114 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(100, 20, 55, 21))
         self.label.setObjectName("label")
         self.startBtn = QtWidgets.QPushButton(self.page)
-        self.startBtn.setGeometry(QtCore.QRect(290, 410, 93, 28))
+        self.startBtn.setGeometry(QtCore.QRect(510, 560, 93, 28))
         self.startBtn.setObjectName("startBtn")
         self.main_windows.addWidget(self.page)
         self.page_script = QtWidgets.QWidget()
         self.page_script.setObjectName("page_script")
         self.groupBox_5 = QtWidgets.QGroupBox(self.page_script)
-        self.groupBox_5.setGeometry(QtCore.QRect(10, 80, 661, 151))
+        self.groupBox_5.setGeometry(QtCore.QRect(10, 220, 821, 201))
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_8 = QtWidgets.QLabel(self.groupBox_5)
-        self.label_8.setGeometry(QtCore.QRect(20, 60, 35, 21))
+        self.label_8.setGeometry(QtCore.QRect(20, 90, 61, 21))
         self.label_8.setObjectName("label_8")
         self.metric_other_module = QtWidgets.QLineEdit(self.groupBox_5)
-        self.metric_other_module.setGeometry(QtCore.QRect(430, 60, 211, 20))
+        self.metric_other_module.setGeometry(QtCore.QRect(480, 90, 211, 20))
         self.metric_other_module.setObjectName("metric_other_module")
-        self.widget1 = QtWidgets.QWidget(self.groupBox_5)
-        self.widget1.setGeometry(QtCore.QRect(20, 20, 351, 21))
-        self.widget1.setObjectName("widget1")
-        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.widget1)
+        self.layoutWidget1 = QtWidgets.QWidget(self.groupBox_5)
+        self.layoutWidget1.setGeometry(QtCore.QRect(20, 20, 351, 41))
+        self.layoutWidget1.setObjectName("layoutWidget1")
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.layoutWidget1)
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.label_7 = QtWidgets.QLabel(self.widget1)
+        self.label_7 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_7.setObjectName("label_7")
         self.horizontalLayout_6.addWidget(self.label_7)
-        self.metric_resource = QtWidgets.QLineEdit(self.widget1)
+        self.metric_resource = QtWidgets.QLineEdit(self.layoutWidget1)
         self.metric_resource.setObjectName("metric_resource")
         self.horizontalLayout_6.addWidget(self.metric_resource)
-        self.widget2 = QtWidgets.QWidget(self.groupBox_5)
-        self.widget2.setGeometry(QtCore.QRect(81, 60, 351, 21))
-        self.widget2.setObjectName("widget2")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.widget2)
+        self.layoutWidget2 = QtWidgets.QWidget(self.groupBox_5)
+        self.layoutWidget2.setGeometry(QtCore.QRect(80, 80, 401, 41))
+        self.layoutWidget2.setObjectName("layoutWidget2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget2)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.metric_system = QtWidgets.QCheckBox(self.widget2)
+        self.metric_system = QtWidgets.QCheckBox(self.layoutWidget2)
+        self.metric_system.setTristate(False)
         self.metric_system.setObjectName("metric_system")
         self.horizontalLayout_2.addWidget(self.metric_system)
-        self.metric_tomcat = QtWidgets.QCheckBox(self.widget2)
+        self.metric_tomcat = QtWidgets.QCheckBox(self.layoutWidget2)
         self.metric_tomcat.setObjectName("metric_tomcat")
         self.horizontalLayout_2.addWidget(self.metric_tomcat)
-        self.metric_mysql = QtWidgets.QCheckBox(self.widget2)
+        self.metric_mysql = QtWidgets.QCheckBox(self.layoutWidget2)
         self.metric_mysql.setObjectName("metric_mysql")
         self.horizontalLayout_2.addWidget(self.metric_mysql)
-        self.metric_mongo = QtWidgets.QCheckBox(self.widget2)
+        self.metric_mongo = QtWidgets.QCheckBox(self.layoutWidget2)
         self.metric_mongo.setObjectName("metric_mongo")
         self.horizontalLayout_2.addWidget(self.metric_mongo)
-        self.metric_other = QtWidgets.QCheckBox(self.widget2)
+        self.metric_other = QtWidgets.QCheckBox(self.layoutWidget2)
         self.metric_other.setObjectName("metric_other")
         self.horizontalLayout_2.addWidget(self.metric_other)
-        self.widget3 = QtWidgets.QWidget(self.groupBox_5)
-        self.widget3.setGeometry(QtCore.QRect(140, 110, 511, 21))
-        self.widget3.setObjectName("widget3")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget3)
+        self.layoutWidget3 = QtWidgets.QWidget(self.groupBox_5)
+        self.layoutWidget3.setGeometry(QtCore.QRect(150, 150, 651, 41))
+        self.layoutWidget3.setObjectName("layoutWidget3")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget3)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.metric_conf = QtWidgets.QPushButton(self.widget3)
+        self.metric_conf = QtWidgets.QPushButton(self.layoutWidget3)
         self.metric_conf.setObjectName("metric_conf")
         self.horizontalLayout.addWidget(self.metric_conf)
-        self.metri_create = QtWidgets.QPushButton(self.widget3)
-        self.metri_create.setObjectName("metri_create")
-        self.horizontalLayout.addWidget(self.metri_create)
-        self.metric_service = QtWidgets.QPushButton(self.widget3)
-        self.metric_service.setObjectName("metric_service")
-        self.horizontalLayout.addWidget(self.metric_service)
-        self.metric_start = QtWidgets.QPushButton(self.widget3)
+        self.metri_cmd = QtWidgets.QPushButton(self.layoutWidget3)
+        self.metri_cmd.setObjectName("metri_cmd")
+        self.horizontalLayout.addWidget(self.metri_cmd)
+        self.metric_create_service = QtWidgets.QPushButton(self.layoutWidget3)
+        self.metric_create_service.setObjectName("metric_create_service")
+        self.horizontalLayout.addWidget(self.metric_create_service)
+        self.metric_start = QtWidgets.QPushButton(self.layoutWidget3)
         self.metric_start.setObjectName("metric_start")
         self.horizontalLayout.addWidget(self.metric_start)
-        self.metric_stop = QtWidgets.QPushButton(self.widget3)
+        self.metric_stop = QtWidgets.QPushButton(self.layoutWidget3)
         self.metric_stop.setObjectName("metric_stop")
         self.horizontalLayout.addWidget(self.metric_stop)
-        self.metric_del = QtWidgets.QPushButton(self.widget3)
+        self.metric_del = QtWidgets.QPushButton(self.layoutWidget3)
         self.metric_del.setObjectName("metric_del")
         self.horizontalLayout.addWidget(self.metric_del)
-        self.widget4 = QtWidgets.QWidget(self.groupBox_5)
-        self.widget4.setGeometry(QtCore.QRect(380, 20, 261, 21))
-        self.widget4.setObjectName("widget4")
-        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.widget4)
+        self.layoutWidget4 = QtWidgets.QWidget(self.groupBox_5)
+        self.layoutWidget4.setGeometry(QtCore.QRect(380, 20, 291, 41))
+        self.layoutWidget4.setObjectName("layoutWidget4")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.layoutWidget4)
         self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.label_9 = QtWidgets.QLabel(self.widget4)
+        self.label_9 = QtWidgets.QLabel(self.layoutWidget4)
         self.label_9.setObjectName("label_9")
         self.horizontalLayout_7.addWidget(self.label_9)
-        self.metric_name = QtWidgets.QLineEdit(self.widget4)
+        self.metric_name = QtWidgets.QLineEdit(self.layoutWidget4)
+        self.metric_name.setText("")
         self.metric_name.setObjectName("metric_name")
         self.horizontalLayout_7.addWidget(self.metric_name)
         self.groupBox_6 = QtWidgets.QGroupBox(self.page_script)
-        self.groupBox_6.setGeometry(QtCore.QRect(10, 260, 661, 151))
+        self.groupBox_6.setGeometry(QtCore.QRect(10, 430, 821, 201))
         self.groupBox_6.setObjectName("groupBox_6")
         self.label_11 = QtWidgets.QLabel(self.groupBox_6)
-        self.label_11.setGeometry(QtCore.QRect(20, 60, 35, 21))
+        self.label_11.setGeometry(QtCore.QRect(20, 80, 61, 31))
         self.label_11.setObjectName("label_11")
-        self.layoutWidget = QtWidgets.QWidget(self.groupBox_6)
-        self.layoutWidget.setGeometry(QtCore.QRect(81, 60, 261, 21))
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
+        self.layoutWidget5 = QtWidgets.QWidget(self.groupBox_6)
+        self.layoutWidget5.setGeometry(QtCore.QRect(81, 80, 311, 31))
+        self.layoutWidget5.setObjectName("layoutWidget5")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget5)
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.filebeat_tomcat = QtWidgets.QCheckBox(self.layoutWidget)
+        self.filebeat_tomcat = QtWidgets.QCheckBox(self.layoutWidget5)
         self.filebeat_tomcat.setObjectName("filebeat_tomcat")
         self.horizontalLayout_3.addWidget(self.filebeat_tomcat)
-        self.filebeat_mysql = QtWidgets.QCheckBox(self.layoutWidget)
+        self.filebeat_mysql = QtWidgets.QCheckBox(self.layoutWidget5)
         self.filebeat_mysql.setObjectName("filebeat_mysql")
         self.horizontalLayout_3.addWidget(self.filebeat_mysql)
-        self.filebeat_other = QtWidgets.QCheckBox(self.layoutWidget)
+        self.filebeat_other = QtWidgets.QCheckBox(self.layoutWidget5)
         self.filebeat_other.setObjectName("filebeat_other")
         self.horizontalLayout_3.addWidget(self.filebeat_other)
         self.layoutWidget_2 = QtWidgets.QWidget(self.groupBox_6)
-        self.layoutWidget_2.setGeometry(QtCore.QRect(140, 110, 511, 21))
+        self.layoutWidget_2.setGeometry(QtCore.QRect(150, 140, 651, 51))
         self.layoutWidget_2.setObjectName("layoutWidget_2")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.layoutWidget_2)
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -243,45 +260,101 @@ class Ui_MainWindow(object):
         self.filebeat_del = QtWidgets.QPushButton(self.layoutWidget_2)
         self.filebeat_del.setObjectName("filebeat_del")
         self.horizontalLayout_4.addWidget(self.filebeat_del)
-        self.widget5 = QtWidgets.QWidget(self.groupBox_6)
-        self.widget5.setGeometry(QtCore.QRect(20, 20, 351, 21))
-        self.widget5.setObjectName("widget5")
-        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.widget5)
+        self.layoutWidget6 = QtWidgets.QWidget(self.groupBox_6)
+        self.layoutWidget6.setGeometry(QtCore.QRect(20, 20, 351, 41))
+        self.layoutWidget6.setObjectName("layoutWidget6")
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.layoutWidget6)
         self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
-        self.label_10 = QtWidgets.QLabel(self.widget5)
+        self.label_10 = QtWidgets.QLabel(self.layoutWidget6)
         self.label_10.setObjectName("label_10")
         self.horizontalLayout_8.addWidget(self.label_10)
-        self.filebeat_resource = QtWidgets.QLineEdit(self.widget5)
+        self.filebeat_resource = QtWidgets.QLineEdit(self.layoutWidget6)
+        self.filebeat_resource.setText("")
         self.filebeat_resource.setObjectName("filebeat_resource")
         self.horizontalLayout_8.addWidget(self.filebeat_resource)
-        self.widget6 = QtWidgets.QWidget(self.groupBox_6)
-        self.widget6.setGeometry(QtCore.QRect(380, 20, 261, 21))
-        self.widget6.setObjectName("widget6")
-        self.horizontalLayout_9 = QtWidgets.QHBoxLayout(self.widget6)
+        self.layoutWidget7 = QtWidgets.QWidget(self.groupBox_6)
+        self.layoutWidget7.setGeometry(QtCore.QRect(380, 20, 291, 41))
+        self.layoutWidget7.setObjectName("layoutWidget7")
+        self.horizontalLayout_9 = QtWidgets.QHBoxLayout(self.layoutWidget7)
         self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
-        self.label_12 = QtWidgets.QLabel(self.widget6)
+        self.label_12 = QtWidgets.QLabel(self.layoutWidget7)
         self.label_12.setObjectName("label_12")
         self.horizontalLayout_9.addWidget(self.label_12)
-        self.filebeat_name = QtWidgets.QLineEdit(self.widget6)
+        self.filebeat_name = QtWidgets.QLineEdit(self.layoutWidget7)
+        self.filebeat_name.setText("")
         self.filebeat_name.setObjectName("filebeat_name")
         self.horizontalLayout_9.addWidget(self.filebeat_name)
         self.groupBox_7 = QtWidgets.QGroupBox(self.page_script)
-        self.groupBox_7.setGeometry(QtCore.QRect(10, 10, 661, 51))
+        self.groupBox_7.setGeometry(QtCore.QRect(10, 10, 821, 201))
         self.groupBox_7.setObjectName("groupBox_7")
-        self.widget7 = QtWidgets.QWidget(self.groupBox_7)
-        self.widget7.setGeometry(QtCore.QRect(20, 21, 351, 21))
-        self.widget7.setObjectName("widget7")
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.widget7)
+        self.layoutWidget8 = QtWidgets.QWidget(self.groupBox_7)
+        self.layoutWidget8.setGeometry(QtCore.QRect(20, 21, 361, 41))
+        self.layoutWidget8.setObjectName("layoutWidget8")
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.layoutWidget8)
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.label_13 = QtWidgets.QLabel(self.widget7)
+        self.label_13 = QtWidgets.QLabel(self.layoutWidget8)
         self.label_13.setObjectName("label_13")
         self.horizontalLayout_5.addWidget(self.label_13)
-        self.g_logstash_name = QtWidgets.QLineEdit(self.widget7)
+        self.g_logstash_name = QtWidgets.QLineEdit(self.layoutWidget8)
+        self.g_logstash_name.setText("")
         self.g_logstash_name.setObjectName("g_logstash_name")
         self.horizontalLayout_5.addWidget(self.g_logstash_name)
+        self.layoutWidget_3 = QtWidgets.QWidget(self.groupBox_7)
+        self.layoutWidget_3.setGeometry(QtCore.QRect(420, 20, 361, 41))
+        self.layoutWidget_3.setObjectName("layoutWidget_3")
+        self.horizontalLayout_11 = QtWidgets.QHBoxLayout(self.layoutWidget_3)
+        self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        self.label_15 = QtWidgets.QLabel(self.layoutWidget_3)
+        self.label_15.setObjectName("label_15")
+        self.horizontalLayout_11.addWidget(self.label_15)
+        self.g_logstash_host = QtWidgets.QLineEdit(self.layoutWidget_3)
+        self.g_logstash_host.setInputMask("")
+        self.g_logstash_host.setText("")
+        self.g_logstash_host.setObjectName("g_logstash_host")
+        self.horizontalLayout_11.addWidget(self.g_logstash_host)
+        self.layoutWidget_4 = QtWidgets.QWidget(self.groupBox_7)
+        self.layoutWidget_4.setGeometry(QtCore.QRect(20, 80, 761, 31))
+        self.layoutWidget_4.setObjectName("layoutWidget_4")
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout(self.layoutWidget_4)
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        self.label_14 = QtWidgets.QLabel(self.layoutWidget_4)
+        self.label_14.setObjectName("label_14")
+        self.horizontalLayout_10.addWidget(self.label_14)
+        self.g_tomcat_host = QtWidgets.QLineEdit(self.layoutWidget_4)
+        self.g_tomcat_host.setText("")
+        self.g_tomcat_host.setObjectName("g_tomcat_host")
+        self.horizontalLayout_10.addWidget(self.g_tomcat_host)
+        self.layoutWidget_5 = QtWidgets.QWidget(self.groupBox_7)
+        self.layoutWidget_5.setGeometry(QtCore.QRect(20, 120, 761, 31))
+        self.layoutWidget_5.setObjectName("layoutWidget_5")
+        self.horizontalLayout_12 = QtWidgets.QHBoxLayout(self.layoutWidget_5)
+        self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.label_16 = QtWidgets.QLabel(self.layoutWidget_5)
+        self.label_16.setObjectName("label_16")
+        self.horizontalLayout_12.addWidget(self.label_16)
+        self.g_mysql_host = QtWidgets.QLineEdit(self.layoutWidget_5)
+        self.g_mysql_host.setText("")
+        self.g_mysql_host.setObjectName("g_mysql_host")
+        self.horizontalLayout_12.addWidget(self.g_mysql_host)
+        self.layoutWidget_6 = QtWidgets.QWidget(self.groupBox_7)
+        self.layoutWidget_6.setGeometry(QtCore.QRect(20, 160, 761, 31))
+        self.layoutWidget_6.setObjectName("layoutWidget_6")
+        self.horizontalLayout_13 = QtWidgets.QHBoxLayout(self.layoutWidget_6)
+        self.horizontalLayout_13.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_13.setObjectName("horizontalLayout_13")
+        self.label_17 = QtWidgets.QLabel(self.layoutWidget_6)
+        self.label_17.setObjectName("label_17")
+        self.horizontalLayout_13.addWidget(self.label_17)
+        self.g_mongodb_host = QtWidgets.QLineEdit(self.layoutWidget_6)
+        self.g_mongodb_host.setText("")
+        self.g_mongodb_host.setObjectName("g_mongodb_host")
+        self.horizontalLayout_13.addWidget(self.g_mongodb_host)
         self.main_windows.addWidget(self.page_script)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
@@ -291,7 +364,7 @@ class Ui_MainWindow(object):
         self.main_windows.addWidget(self.page_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 709, 18))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 898, 26))
         self.menubar.setObjectName("menubar")
         self.menu_Main = QtWidgets.QMenu(self.menubar)
         self.menu_Main.setObjectName("menu_Main")
@@ -347,18 +420,22 @@ class Ui_MainWindow(object):
         self.groupBox_5.setTitle(_translate("MainWindow", "Metricbeat"))
         self.label_8.setText(_translate("MainWindow", "Modules"))
         self.label_7.setText(_translate("MainWindow", "Resource"))
+        self.metric_resource.setPlaceholderText(
+            _translate("MainWindow", "C:\\metricbeat")
+        )
         self.metric_system.setText(_translate("MainWindow", "System"))
         self.metric_tomcat.setText(_translate("MainWindow", "Tomcat"))
         self.metric_mysql.setText(_translate("MainWindow", "MySQL"))
         self.metric_mongo.setText(_translate("MainWindow", "Mongodb"))
         self.metric_other.setText(_translate("MainWindow", "Other"))
         self.metric_conf.setText(_translate("MainWindow", "Config"))
-        self.metri_create.setText(_translate("MainWindow", "Run Cmd test"))
-        self.metric_service.setText(_translate("MainWindow", "Create service"))
+        self.metri_cmd.setText(_translate("MainWindow", "Run Cmd test"))
+        self.metric_create_service.setText(_translate("MainWindow", "Create service"))
         self.metric_start.setText(_translate("MainWindow", "Start service"))
         self.metric_stop.setText(_translate("MainWindow", "Stop service"))
         self.metric_del.setText(_translate("MainWindow", "Delete service"))
         self.label_9.setText(_translate("MainWindow", "Service name"))
+        self.metric_name.setPlaceholderText(_translate("MainWindow", "metricbeat"))
         self.groupBox_6.setTitle(_translate("MainWindow", "Filebeat"))
         self.label_11.setText(_translate("MainWindow", "Modules"))
         self.filebeat_tomcat.setText(_translate("MainWindow", "Tomcat"))
@@ -371,9 +448,26 @@ class Ui_MainWindow(object):
         self.filebeat_stop.setText(_translate("MainWindow", "Stop service"))
         self.filebeat_del.setText(_translate("MainWindow", "Delete service"))
         self.label_10.setText(_translate("MainWindow", "Resource"))
+        self.filebeat_resource.setPlaceholderText(
+            _translate("MainWindow", "C:\\filebeat")
+        )
         self.label_12.setText(_translate("MainWindow", "Service name"))
+        self.filebeat_name.setPlaceholderText(_translate("MainWindow", "filebeat"))
         self.groupBox_7.setTitle(_translate("MainWindow", "General"))
         self.label_13.setText(_translate("MainWindow", "Logstash service name"))
+        self.g_logstash_name.setPlaceholderText(_translate("MainWindow", "logstash"))
+        self.label_15.setText(_translate("MainWindow", "Logstash host"))
+        self.g_logstash_host.setPlaceholderText(_translate("MainWindow", "host:port"))
+        self.label_14.setText(_translate("MainWindow", "Tomcat hosts  "))
+        self.g_tomcat_host.setPlaceholderText(_translate("MainWindow", "host:port"))
+        self.label_16.setText(_translate("MainWindow", "MySQL hosts   "))
+        self.g_mysql_host.setPlaceholderText(
+            _translate("MainWindow", "user:pass@tcp(host:port)")
+        )
+        self.label_17.setText(_translate("MainWindow", "mongodb hosts"))
+        self.g_mongodb_host.setPlaceholderText(
+            _translate("MainWindow", "[user:pass@]host[:port]")
+        )
         self.pushButton.setText(_translate("MainWindow", "page 3"))
         self.menu_Main.setTitle(_translate("MainWindow", "&Main"))
         self.menu_Config.setTitle(_translate("MainWindow", "&Config"))
@@ -388,37 +482,154 @@ class Ui_MainWindow(object):
         self.actionMetricbeat.setText(_translate("MainWindow", "Metricbeat"))
 
     def setAction(self):
-
         self.menu_Main.triggered.connect(lambda: self.main_windows.setCurrentIndex(0))
-        self.action_Beat.triggered.connect(
-            lambda: self.main_windows.setCurrentIndex(1)
-        )
+        self.action_Beat.triggered.connect(lambda: self.main_windows.setCurrentIndex(1))
         self.metric_other.stateChanged.connect(self.on_checkbox_metric_other_changed)
-        self.main_windows.setCurrentIndex(0)
+        self.main_windows.setCurrentIndex(1)
         self.metric_other_module.setEnabled(False)
-        self.metric_service.clicked.connect(self.run_script)
+        self.metric_create_service.clicked.connect(self.metric_create_service_func)
+        self.metric_conf.clicked.connect(self.metric_config_click)
+        self.metric_start.clicked.connect(self.metric_start_click)
+        self.metric_stop.clicked.connect(self.metric_stop_click)
+        self.metric_del.clicked.connect(self.metric_del_click)
 
+    # Other checkbox
     def on_checkbox_metric_other_changed(self, state):
         if state == QtCore.Qt.Checked:
             self.metric_other_module.setEnabled(True)
         else:
             self.metric_other_module.setEnabled(False)
-    
+
     def metric_config_click(self):
-        persentText = self.memoryCombobox.currentText()
+        try:
+            logstash_name = self.g_logstash_name.text()
+            logstash_host = self.g_logstash_host.text()
+            resource = self.metric_resource.text().replace("\\", "/")
+            tomcat_hosts = self.g_tomcat_host.text().split(",")
+            mysql_hosts = self.g_mysql_host.text().split(",")
+            mongodb_hosts = self.g_mongodb_host.text().split(",")
+            name = self.metric_name.text()
+            module = ""
+            if self.metric_system.isChecked():
+                module += " system"
+            if self.metric_tomcat.isChecked():
+                module += " tomcat"
+            if self.metric_mysql.isChecked():
+                module += " mysql"
+            if self.metric_mongo.isChecked():
+                module += " mongodb"
+            if self.metric_other.isChecked():
+                other_module = self.metric_other_module.text().split(",")
+                for i in other_module:
+                    i = i.strip()
+                    if i != "":
+                        module += " " + i
+            del_modules = resource + "/modules.d"
+            # disable all module
+            for file_name in os.listdir(del_modules):
+                if file_name.endswith(".yml"):
+                    old_path = os.path.join(del_modules, file_name)
+                    new_path = os.path.join(del_modules, file_name + ".disabled")
+                    shutil.move(old_path, new_path)
+            # create script enable module
+            f = open(resource + "/active_module.ps1", "w+")
+            f.truncate(0)  # need '0' when using r+
+            f.write('Set-Location -Path "' + resource + '"\n')
+            f.write("./metricbeat modules enable" + module + "\n")
+            f.close()
+            path_active = r"" + resource + "/active_module.ps1"
+            subprocess.run(["powershell", "-File", path_active])
 
-    def run_script(self):
-        script_path = r"D:/Program Files/metricbeat-8.7.1/metric_service_test.ps1"
+            # config file
+            metricbeat_yml(resource, logstash_host)
+            if self.metric_system.isChecked():
+                metricbeat_module_system(resource)
+            if self.metric_tomcat.isChecked():
+                for i in tomcat_hosts:
+                    metricbeat_module_tomcat(resource, i)
+            if self.metric_mysql.isChecked():
+                for i in mysql_hosts:
+                    metricbeat_module_mysql(resource, i)
+            if self.metric_mongo.isChecked():
+                for i in mongodb_hosts:
+                    metricbeat_module_mongodb(resource, i)
+            # config module mysql
+            # mysql_process_path = resource+"/module/mysql/process"
+            # mysql_module_path = resource+"/module/mysql"
+            # if not os.path.exists(mysql_process_path):
+            #     shutil.rmtree(mysql_module_path)
+            #     shutil.copytree("./mysql", mysql_module_path)
 
-       # Run the PowerShell script
-        subprocess.run(["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", script_path])
+            QMessageBox.information(
+                None, "Successful", "Successful run script config metricbeat!"
+            )
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Error: {str(e)}")
+
+    # def run_script(self):
+    #     try:
+
+    #         QMessageBox.information(None, "Successful", "Successful run config metricbeat!")
+    #     except Exception as e:
+    #         QMessageBox.critical(None, "Error", f"Error: {str(e)}")
+    def metric_create_service_func(self):
+        try:
+            logstash_name = self.g_logstash_name.text()
+            resource = self.metric_resource.text().replace("\\", "/")
+            name = self.metric_name.text()
+            # create ps1 script
+            metric_create_ps1(resource, name, logstash_name)
+
+            script_path = resource + "/metric_service.ps1"
+            thread = Thread(target=run_metribeat_script(script_path))
+            # run the thread
+            thread.start()
+
+            QMessageBox.information(
+                None, "Successful", "Successful run script create service metricbeat!"
+            )
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Error: {str(e)}")
+
+    def metric_stop_click(self):
+        name = self.metric_name.text()
+        command = "net stop " + name
+        subprocess.run(command, shell=True)
+
+    def metric_start_click(self):
+        name = self.metric_name.text()
+        thread = Thread(target=start_metribeat_script(name))
+        thread.start()
+
+    def metric_del_click(self):
+        name = self.metric_name.text()
+        command = "net stop " + name
+        subprocess.run(command, shell=True)
+        command2 = "sc delete " + name
+        subprocess.run(command2, shell=True)
+
+
+def start_metribeat_script(name):
+    command = "net start " + name
+    subprocess.run(command, shell=True)
+
+
+def run_metribeat_script(script_path):
+    # Run the PowerShell script
+    subprocess.run(
+        ["powershell.exe", "-ExecutionPolicy", "Unrestricted", "-File", script_path]
+    )
 
 
 if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+    if not pyuac.isUserAdmin():
+        pyuac.runAsAdmin()
+    else:
+        import sys
+
+        app = QtWidgets.QApplication(sys.argv)
+        MainWindow = QtWidgets.QMainWindow()
+        ui = Ui_MainWindow()
+        ui.setupUi(MainWindow)
+        MainWindow.show()
+        sys.exit(app.exec_())
