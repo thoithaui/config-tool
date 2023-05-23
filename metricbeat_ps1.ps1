@@ -11,7 +11,7 @@ $workdir = Split-Path $MyInvocation.MyCommand.Path
 # Create the new service.
 New-Service -name $service_name `
   -displayName $service_name `
-  -binaryPathName "`"$workdir\$file_run`" --environment=windows_service -c `"$workdir\$file_config`" --path.home `"$workdir`" --path.data `"$workdir\data`" --path.logs `"$workdir\data\logs`" -E logging.files.redirect_stderr=true"`
+  -binaryPathName "`"$workdir\$file_run`" --environment=windows_service -c `"$workdir\$file_config`" --path.home `"$workdir`" --path.data `"$env:PROGRAMDATA\metricbeat`" --path.logs `"$env:PROGRAMDATA\metricbeat\logs`" -E logging.files.redirect_stderr=true"`
   $depends_on
 
 

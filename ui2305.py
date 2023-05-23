@@ -492,6 +492,7 @@ class Ui_MainWindow(object):
         self.metric_start.clicked.connect(self.metric_start_click)
         self.metric_stop.clicked.connect(self.metric_stop_click)
         self.metric_del.clicked.connect(self.metric_del_click)
+        self.metri_cmd.clicked.connect(self.metric_cmd_click)
 
     # Other checkbox
     def on_checkbox_metric_other_changed(self, state):
@@ -594,7 +595,7 @@ class Ui_MainWindow(object):
     def metric_stop_click(self):
         name = self.metric_name.text()
         command = "net stop " + name
-        subprocess.run(command, shell=True)
+        subprocess.Popen(command, shell=True)
 
     def metric_start_click(self):
         name = self.metric_name.text()
@@ -606,30 +607,56 @@ class Ui_MainWindow(object):
         command = "net stop " + name
         subprocess.run(command, shell=True)
         command2 = "sc delete " + name
-        subprocess.run(command2, shell=True)
+        subprocess.Popen(command2, shell=True)
+
+    def metric_cmd_click(self):
+        resource = self.metric_resource.text().replace("\\", "/")
+        test_path = resource + "/metric_run_test.bat"
+        f = open(test_path, "w+")
+        f.truncate(0)  # need '0' when using r+
+        f.write("@echo off\n\n")
+        f.write("cd " + resource + "\n")
+        f.write("metricbeat -e -c metricbeat.yml\n")
+        f.write("\nPause")
+        f.close()
+        thread = Thread(target=start_metribeat_test(test_path))
+        thread.start()
+
+
+def start_metribeat_test(command):
+    subprocess.Popen(["cmd.exe", "/c", "start", "cmd.exe", "/c", command], shell=True)
 
 
 def start_metribeat_script(name):
     command = "net start " + name
-    subprocess.run(command, shell=True)
+    subprocess.Popen(command, shell=True)
 
 
 def run_metribeat_script(script_path):
     # Run the PowerShell script
-    subprocess.run(
-        ["powershell.exe", "-ExecutionPolicy", "Unrestricted", "-File", script_path]
+    subprocess.Popen(
+        ["powershell.exe", "-ExecutionPolicy", "Unrestricted", "-File", script_path],
+        creationflags=subprocess.CREATE_NEW_CONSOLE,
     )
 
 
 if __name__ == "__main__":
-    if not pyuac.isUserAdmin():
-        pyuac.runAsAdmin()
-    else:
-        import sys
+    # if not pyuac.isUserAdmin():
+    #     pyuac.runAsAdmin()
+    # else:
+    #     import sys
 
-        app = QtWidgets.QApplication(sys.argv)
-        MainWindow = QtWidgets.QMainWindow()
-        ui = Ui_MainWindow()
-        ui.setupUi(MainWindow)
-        MainWindow.show()
-        sys.exit(app.exec_())
+    #     app = QtWidgets.QApplication(sys.argv)
+    #     MainWindow = QtWidgets.QMainWindow()
+    #     ui = Ui_MainWindow()
+    #     ui.setupUi(MainWindow)
+    #     MainWindow.show()
+    #     sys.exit(app.exec_())
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
