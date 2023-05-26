@@ -54,3 +54,32 @@ print("1234")
 
 # Chạy vòng lặp chính của ứng dụng
 sys.exit(app.exec_())
+
+
+from datetime import datetime, timedelta
+from elasticsearch import Elasticsearch
+
+# Kết nối tới Elasticsearch
+es = Elasticsearch([{"host": "localhost", "port": 9200}])
+
+# Thời điểm trước đó 10 giây từ hiện tại
+start_time = datetime.now() - timedelta(seconds=10)
+
+# Tạo truy vấn
+query = {
+    "query": {
+        "range": {
+            "timestamp": {
+                "gte": start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "lte": "now",
+            }
+        }
+    }
+}
+
+# Gửi truy vấn đến Elasticsearch
+result = es.search(index="your_index_name", body=query)
+
+# Xử lý kết quả
+for hit in result["hits"]["hits"]:
+    print(hit["_source"])
