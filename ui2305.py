@@ -9,9 +9,11 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMessageBox, QTextEdit
 from threading import Thread
 import subprocess
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextCursor
 import pyuac
 import os
 import shutil
@@ -395,6 +397,15 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_Main.menuAction())
         self.menubar.addAction(self.menu_Config.menuAction())
 
+        # Tạo một QTextEdit để hiển thị thông tin từ console
+        self.text_edit = QTextEdit()
+        self.text_edit.setReadOnly(
+            True
+        )  # Đặt chế độ chỉ đọc để ngăn người dùng chỉnh sửa văn bản
+        self.text_edit.setStyleSheet(
+            "font-family: Courier; font-size: 10pt"
+        )  # Đặt kiểu cho văn bản
+
         # Tạo các QAction để chuyển đổi giữa các trang
         self.setAction()
 
@@ -622,6 +633,14 @@ class Ui_MainWindow(object):
         thread = Thread(target=start_metribeat_test(test_path))
         thread.start()
 
+    def write(self, text):
+        # Ghi văn bản vào QTextEdit
+        cursor = self.text_edit.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        cursor.insertText(text)
+        self.text_edit.setTextCursor(cursor)
+        self.text_edit.ensureCursorVisible()
+
 
 def start_metribeat_test(command):
     subprocess.Popen(["cmd.exe", "/c", "start", "cmd.exe", "/c", command], shell=True)
@@ -654,9 +673,15 @@ if __name__ == "__main__":
     #     sys.exit(app.exec_())
     import sys
 
+    # Tạo một cửa sổ console
+    console_window = Ui_MainWindow()
+    # Ghi đè sys.stdout để chuyển thông tin từ console vào QTextEdit
+    sys.stdout = console_window
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+
     MainWindow.show()
     sys.exit(app.exec_())
