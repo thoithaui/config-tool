@@ -14,7 +14,7 @@
   # or another DSN format supported by <https://github.com/Go-SQL-Driver/MySQL/>.
   # The username and password can either be set in the DSN or using the username
   # and password config options. Those specified in the DSN take precedence.
-  hosts: ["$mysql-host/"]
+  hosts: [$mysql-host]
 
   # Username of hosts. Empty by default.
   #username: root

@@ -15,7 +15,7 @@
   # The username and password can also be set using the respective configuration
   # options. The credentials in the URL take precedence over the username and
   # password configuration options.
-  hosts: ["$mongodb-host"]
+  hosts: [$mongodb-host]
 
   # Optional SSL. By default is off.
   #ssl.enabled: true

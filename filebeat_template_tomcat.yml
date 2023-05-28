@@ -1,0 +1,83 @@
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/catalina*.log
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "catalinalog"
+  scan_frequency: 10s
+
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/catalina.out
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "catalinaout"
+  scan_frequency: 10s
+
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/localhost.*.log
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "localhostlog"
+  scan_frequency: 10s
+
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/localhost_access_log*.txt
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "localhostaccesslog"
+  scan_frequency: 10s
+
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/app.2*.log
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "app2log"
+  scan_frequency: 10s
+
+- type: filestream
+  enabled: true
+  paths:
+    - $logs-path/app.log
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: "^[0-9]"
+        negate: true
+        match: after
+  fields:
+    category: "applog"
+  scan_frequency: 10s
