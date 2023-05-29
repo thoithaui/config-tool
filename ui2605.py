@@ -1062,7 +1062,16 @@ class Ui_MainWindow(object):
     def logstash_stop_click(self):
         name = self.logstash_name.text().strip()
         command = "net stop " + name
-        subprocess.Popen(command, shell=True)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Lấy đầu ra và lỗi của quá trình
+        out, err = process.communicate()
+        # Decode và in đầu ra
+        out = out.decode()
+        print(out)
+        # Decode và in lỗi
+        err = err.decode()
+        print(err)
+        process.wait()
 
     def logstash_start_click(self):
         name = self.logstash_name.text().strip()
