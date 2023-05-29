@@ -8,16 +8,22 @@ from datetime import datetime, timedelta, timezone
 # ELASTIC_PASSWORD = "ductho"
 # ELASTIC_HOST = "https://localhost:9200/"
 
-def check_memory2(max):
-    print(max)
-
-def get_latest_records(max_persent):
-    datastream_name = "metrics-system-memory"
-    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+def create_elastic_cons(ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSWORD):
+    global es
     es = Elasticsearch(
         ELASTIC_HOST,
         basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
     )
+def end_elastic_cons():
+    es.close()
+
+def get_latest_records(max_persent):
+    datastream_name = "metrics-system-memory"
+    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     # Truy vấn Elasticsearch để lấy 1 kết quả mới nhất
     # query = {
@@ -69,15 +75,15 @@ def get_latest_records(max_persent):
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
 
 def get_memory_records(max_persent, time):
     datastream_name = "metrics-system-memory"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     end_time = datetime.now(timezone.utc)
     start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
@@ -115,15 +121,15 @@ def get_memory_records(max_persent, time):
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
 
 def get_cpu_records(max_persent, time):
     datastream_name = "metrics-system-cpu"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     end_time = datetime.now(timezone.utc)
     start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
@@ -161,15 +167,15 @@ def get_cpu_records(max_persent, time):
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
 
-def get_max_cpu(max_persent, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSWORD):
+def get_max_cpu(max_persent, time):
     datastream_name = "metrics-system-cpu"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     # end_time = datetime.now(timezone.utc)
     # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
@@ -201,32 +207,35 @@ def get_max_cpu(max_persent, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSW
         }
     }
     response = es.search(index=datastream_name, body=query)
-
+    alert = []
     # Kiểm tra và xử lý kết quả
     if response["aggregations"]["hosts"]["buckets"]:
         for host in response["aggregations"]["hosts"]["buckets"]:
             host_name = host["key"]
             percent = host["max_pct"]["value"]
             if percent > max_persent/100:
-                notification.notify(
-                   message="CPU {} reached the warning limit: {:.1f}%".format(host_name,percent*100),
-                    timeout=3,
-                )
+                # notification.notify(
+                #    message="CPU {} reached the warning limit: {:.1f}%".format(host_name,percent*100),
+                #     timeout=3,
+                # )
+              message="CPU {} reached the warning limit: {:.1f}%".format(host_name,percent*100)
+              alert.append(message)
     else:
         print("No records found.")
-        notification.notify(title="CPU", message="Read data error", timeout=3)
+        # notification.notify(title="CPU", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
+    return alert
 
 
-def get_max_memory(max_persent, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSWORD):
+def get_max_memory(max_persent, time):
     datastream_name = "metrics-system-memory"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
     # end_time = datetime.now(timezone.utc)
     # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
 
@@ -258,31 +267,33 @@ def get_max_memory(max_persent, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PA
         }
     }
     response = es.search(index=datastream_name, body=query)
-
+    alert = []
     # Kiểm tra và xử lý kết quả
     if response["aggregations"]["hosts"]["buckets"]:
         for host in response["aggregations"]["hosts"]["buckets"]:
             host_name = host["key"]
             percent = host["max_pct"]["value"]
             if percent > max_persent/100:
-                notification.notify(
-                   message="Memory {} reached the warning limit: {:.1f}%".format(host_name,percent*100),
-                    timeout=3,
-                )
+                # notification.notify(
+                #    message="Memory {} reached the warning limit: {:.1f}%".format(host_name,percent*100),
+                #     timeout=3,
+                # )
+              message="Memory {} reached the warning limit: {:.1f}%".format(host_name,percent*100)
+              alert.append(message)
     else:
         print("No records found.")
-        notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
+    return alert
 
-def get_mysql_max_connected(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSWORD):
+def get_mysql_max_connected(max_con, time):
     datastream_name = "metrics-mysql-status"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     # end_time = datetime.now(timezone.utc)
     # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
@@ -293,7 +304,7 @@ def get_mysql_max_connected(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELAST
         "query": {
           "range": {
             "@timestamp": {
-              "gte": "now-20s",
+              "gte": "now-"+str(time)+"s",
               "lte": "now"
             }
           }
@@ -315,31 +326,33 @@ def get_mysql_max_connected(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELAST
         }
     }
     response = es.search(index=datastream_name, body=query)
-
+    alert = []
     # Kiểm tra và xử lý kết quả
     if response["aggregations"]["hosts"]["buckets"]:
         for host in response["aggregations"]["hosts"]["buckets"]:
             host_name = host["key"]
             con = host["max_pct"]["value"]
             if con > max_con:
-                notification.notify(
-                   message="MySQL {} reached the warning limit: {:.0f} connected".format(host_name,con),
-                    timeout=3,
-                )
+              # notification.notify(
+              #    message="MySQL {} reached the warning limit: {:.0f} connected".format(host_name,con),
+              #     timeout=3,
+              # )
+              message="MySQL {} reached the warning limit: {:.0f} connected".format(host_name,con)
+              alert.append(message)
     else:
         print("No records found.")
-        notification.notify(title="MySQL", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
+    return alert
 
-def get_mysql_error(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSWORD):
+def get_mysql_error(time):
     datastream_name = "logs-mysql-error"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
-    es = Elasticsearch(
-        ELASTIC_HOST,
-        basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    )
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
     # end_time = datetime.now(timezone.utc)
     # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
@@ -359,7 +372,7 @@ def get_mysql_error(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSW
             {
               "range": {
                 "@timestamp": {
-                  "gte": "now-20s",
+                  "gte": "now-"+str(time)+"s",
                   "lte": "now"
                 }
               }
@@ -371,6 +384,7 @@ def get_mysql_error(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSW
 
     
     response = es.search(index=datastream_name, body=query)
+    alert = []
     # Kiểm tra và xử lý kết quả
     if response["hits"]["hits"]:
         for hit in response["hits"]["hits"]:
@@ -380,20 +394,283 @@ def get_mysql_error(max_con, time, ELASTIC_HOST, ELASTIC_USERNAME, ELASTIC_PASSW
             err = source["level"]
             code = source["error_code"]
             if err == "ERROR":
-                notification.notify(
-                    title="Mysql Error",
-                    message="New error: {}".format(code),
-                    timeout=3,
-                )
-            #     break
+            #     notification.notify(
+            #         title="Mysql Error",
+            #         message="New error: {}".format(code),
+            #         timeout=3,
+            #     )
+              message="Mysql - New error: {}".format(code)
+              alert.append(message)
     else:
         print("No records found.")
-        notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
-    es.close()
+    # es.close()
+    return alert
+    
+def get_mongodb_cons(max_con, time):
+    datastream_name = "metrics-mongodb-status"
+    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
 
-# get_max_cpu(30,20,"https://localhost:9200/","elastic","ductho")
+    # end_time = datetime.now(timezone.utc)
+    # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+    query = {
+        "size": 0,
+        "query": {
+          "range": {
+            "@timestamp": {
+              "gte": "now-"+str(time)+"s",
+              "lte": "now"
+            }
+          }
+        },
+        "aggs": {
+          "hosts": {
+            "terms": {
+              "field": "service.address",
+              "size": 10
+            },
+            "aggs": {
+              "max_cons": {
+                "max": {
+                  "field": "mongodb.status.connections.current"
+                }
+              }
+            }
+          }
+        }
+    }
+
+    
+    response = es.search(index=datastream_name, body=query)
+    alert = []
+    # Kiểm tra và xử lý kết quả
+    if response["aggregations"]["hosts"]["buckets"]:
+        for host in response["aggregations"]["hosts"]["buckets"]:
+            host_name = host["key"]
+            con = host["max_cons"]["value"]
+            if con > max_con:
+              # notification.notify(
+              #    message="Mongodb {} reached the warning limit: {:.0f} connected".format(host_name,con),
+              #     timeout=3,
+              # )
+              message="Mongodb {} reached the warning limit: {:.0f} connected".format(host_name,con)
+              alert.append(message)
+    else:
+        print("No records found.")
+        
+
+    # Đóng kết nối Elasticsearch
+    # es.close()
+    return alert
+
+def get_mongodb_queue(max_con, time):
+    datastream_name = "metrics-mongodb-status"
+    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
+
+    # end_time = datetime.now(timezone.utc)
+    # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+    query = {
+        "size": 0,
+        "query": {
+          "range": {
+            "@timestamp": {
+              "gte": "now-"+str(time)+"s",
+              "lte": "now"
+            }
+          }
+        },
+        "aggs": {
+          "hosts": {
+            "terms": {
+              "field": "service.address",
+              "size": 10
+            },
+            "aggs": {
+              "max_cons": {
+                "max": {
+                  "field": "mongodb.status.global_lock.current_queue.total"
+                }
+              }
+            }
+          }
+        }
+    }
+
+    
+    response = es.search(index=datastream_name, body=query)
+    alert = []
+    # Kiểm tra và xử lý kết quả
+    if response["aggregations"]["hosts"]["buckets"]:
+        for host in response["aggregations"]["hosts"]["buckets"]:
+            host_name = host["key"]
+            con = host["max_cons"]["value"]
+            if con > max_con:
+            #     notification.notify(
+            #        message="Mongodb {} reached the warning limit: {:.0f} global lock".format(host_name,con),
+            #         timeout=3,
+            #     )
+              message="Mongodb {} reached the warning limit: {:.0f} global lock".format(host_name,con)
+              alert.append(message)
+    else:
+        print("No records found.")
+        
+
+    # Đóng kết nối Elasticsearch
+    # es.close()
+    return alert
+
+def get_tomcat_total_error(max_con, time):
+    datastream_name = "metrics-tomcat-metric"
+    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
+
+    # end_time = datetime.now(timezone.utc)
+    # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+    query = {
+        "size": 0,
+        "query": {
+          "range": {
+            "@timestamp": {
+              "gte": "now-"+str(time)+"s",
+              "lte": "now"
+            }
+          }
+        },
+        "aggs": {
+          "hosts": {
+            "terms": {
+              "field": "service.address",
+              "size": 10
+            },
+            "aggs": {
+              "max_cons": {
+                "max": {
+                  "field": "tomcat.requests.errors.total"
+                }
+              }
+            }
+          }
+        }
+    }
+
+    
+    response = es.search(index=datastream_name, body=query)
+    alert = []
+    # Kiểm tra và xử lý kết quả
+    if response["aggregations"]["hosts"]["buckets"]:
+        for host in response["aggregations"]["hosts"]["buckets"]:
+            host_name = host["key"]
+            host_name = host_name[:host_name.index("/jolokia")]
+            con = host["max_cons"]["value"]
+            if con >= max_con:
+              # notification.notify(
+              #      message="Tomcat {} reached the warning limit: {:.0f} error".format(host_name,con),
+              #       timeout=3,
+              #   )
+              message="Tomcat {} reached the warning limit: {:.0f} error".format(host_name,con)
+              alert.append(message)
+    else:
+        print("No records found.")
+        
+
+    # Đóng kết nối Elasticsearch
+    # es.close()
+    return alert
+
+def get_tomcat_total_error_percent(max_con, time):
+    datastream_name = "metrics-tomcat-metric"
+    # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
+    # es = Elasticsearch(
+    #     ELASTIC_HOST,
+    #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
+    # )
+
+    # end_time = datetime.now(timezone.utc)
+    # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+
+    # Tạo truy vấn Elasticsearch với khoảng thời gian
+    query = {
+        "size": 1,
+        "query": {
+          "range": {
+            "@timestamp": {
+              "gte": "now-"+str(time)+"s",
+              "lte": "now"
+            }
+          }
+        },
+        "aggs": {
+          "hosts": {
+            "terms": {
+              "field": "service.address",
+              "size": 10
+            },
+            "aggs": {
+              "max_cons": {
+                "max": {
+                  "field": "tomcat.requests.errors.total"
+                }
+              }
+            }
+          }
+        }
+    }
+
+    
+    response = es.search(index=datastream_name, body=query)
+    alert = []
+    # Kiểm tra và xử lý kết quả
+    if response["hits"]["hits"]:
+        for hit in response["hits"]["hits"]:
+          source = hit["_source"]
+
+          # Truy cập các trường bạn muốn từ kết quả
+          err = source["level"]
+          code = source["error_code"]
+          if err == "ERROR":
+            #     notification.notify(
+            #         title="Mysql Error",
+            #         message="New error: {}".format(code),
+            #         timeout=3,
+            #     )
+            message="Tomcat {} reached the warning limit: {:.0f} error".format(err,code)
+            alert.append(message)
+    else:
+        print("No records found.")
+        
+
+    # Đóng kết nối Elasticsearch
+    # es.close()
+    return alert
+
+
+# get_mongodb_cons(0,20,"https://localhost:9200/","elastic","ductho")
 
 # Gọi hàm để lấy 10 kết quả mới nhất
 # Lặp lại truy vấn mỗi 10 giây

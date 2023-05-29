@@ -72,8 +72,8 @@ def filebeat_create_ps1(source, service_name, logstash):
         file.write(filedata)
 
 def logstash_create_ps1(source, service_name):
-    service_path = source+"/bin"
-    app_directory = source+"/bin/logstash.bat"
+    # service_path = source+"/bin"
+    # app_directory = source+"/bin/logstash.bat"
     
     f = open(source + "/logstash_service.ps1", "w+")
     f.truncate(0)  # need '0' when using r+
@@ -86,16 +86,14 @@ def logstash_create_ps1(source, service_name):
         for line in firstfile:
             # append content to second file
             secondfile.write(line)
-
+    
     # Read in the file
     with open(source + "/logstash_service.ps1", "r") as file:
         filedata = file.read()
 
     # Replace the target string
-    filedata = filedata.replace("$serviceName", service_name)
-    filedata = filedata.replace("$servicePath", service_path)
-    filedata = filedata.replace("$AppDirectory", app_directory)
-
+    filedata = filedata.replace("$name", service_name)
+    filedata = filedata.replace("$path", source)
     # Write the file out again
     with open(source + "/logstash_service.ps1", "w") as file:
         file.write(filedata)

@@ -177,6 +177,10 @@ def filebeat_module_mysql(source, mysql_paths):
         file.write(filedata)
     
 def logstash_conf(source, beat_port, elastic, e_user, e_pass):
+    # if not os.path.exists(source+"/nssm.exe"):
+    #     print("no")
+    #     shutil.copyfile(folder_path+"/nssm.exe", source)
+    
     source = source + "/config/logstash.conf"
     f = open(source, "w+")
     f.truncate(0)  # need '0' when using r+
