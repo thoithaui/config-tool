@@ -70,8 +70,7 @@ def get_latest_records(max_persent):
             #         timeout=3,
             #     )
             #     break
-    else:
-        print("No records found.")
+    
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
@@ -116,8 +115,7 @@ def get_memory_records(max_persent, time):
                     timeout=3,
                 )
                 break
-    else:
-        print("No records found.")
+    
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
@@ -162,8 +160,7 @@ def get_cpu_records(max_persent, time):
                     timeout=3,
                 )
                 break
-    else:
-        print("No records found.")
+    
         notification.notify(title="Memory", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
@@ -220,8 +217,7 @@ def get_max_cpu(max_persent, time):
                 # )
               message="CPU {} reached the warning limit: {:.1f}%".format(host_name,percent*100)
               alert.append(message)
-    else:
-        print("No records found.")
+    
         # notification.notify(title="CPU", message="Read data error", timeout=3)
 
     # Đóng kết nối Elasticsearch
@@ -280,8 +276,7 @@ def get_max_memory(max_persent, time):
                 # )
               message="Memory {} reached the warning limit: {:.1f}%".format(host_name,percent*100)
               alert.append(message)
-    else:
-        print("No records found.")
+    
 
     # Đóng kết nối Elasticsearch
     # es.close()
@@ -339,8 +334,7 @@ def get_mysql_max_connected(max_con, time):
               # )
               message="MySQL {} reached the warning limit: {:.0f} connected".format(host_name,con)
               alert.append(message)
-    else:
-        print("No records found.")
+    
 
     # Đóng kết nối Elasticsearch
     # es.close()
@@ -361,6 +355,7 @@ def get_mysql_error(time):
 
     # Tạo truy vấn Elasticsearch với khoảng thời gian
     query = {
+      "sort": [{"@timestamp": {"order": "desc"}}],
       "query": {
         "bool": {
           "must": [
@@ -372,7 +367,7 @@ def get_mysql_error(time):
             {
               "range": {
                 "@timestamp": {
-                  "gte": "now-"+str(time)+"s",
+                  "gte": "now-300s",
                   "lte": "now"
                 }
               }
@@ -384,6 +379,7 @@ def get_mysql_error(time):
 
     
     response = es.search(index=datastream_name, body=query)
+    
     alert = []
     # Kiểm tra và xử lý kết quả
     if response["hits"]["hits"]:
@@ -393,7 +389,9 @@ def get_mysql_error(time):
             # Truy cập các trường bạn muốn từ kết quả
             err = source["level"]
             code = source["error_code"]
-            if err == "ERROR":
+            timestamp = datetime.fromisoformat(source["@timestamp"])
+            s = datetime.now(timezone.utc) - timestamp
+            if err == "ERROR" and s.seconds < (2*int(time)):
             #     notification.notify(
             #         title="Mysql Error",
             #         message="New error: {}".format(code),
@@ -401,8 +399,8 @@ def get_mysql_error(time):
             #     )
               message="Mysql - New error: {}".format(code)
               alert.append(message)
-    else:
-        print("No records found.")
+              break
+    
 
     # Đóng kết nối Elasticsearch
     # es.close()
@@ -464,8 +462,7 @@ def get_mongodb_cons(max_con, time):
               # )
               message="Mongodb {} reached the warning limit: {:.0f} connected".format(host_name,con)
               alert.append(message)
-    else:
-        print("No records found.")
+    
         
 
     # Đóng kết nối Elasticsearch
@@ -528,8 +525,7 @@ def get_mongodb_queue(max_con, time):
             #     )
               message="Mongodb {} reached the warning limit: {:.0f} global lock".format(host_name,con)
               alert.append(message)
-    else:
-        print("No records found.")
+    
         
 
     # Đóng kết nối Elasticsearch
@@ -544,64 +540,62 @@ def get_tomcat_total_error(max_con, time):
     #     basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
     # )
 
-    # end_time = datetime.now(timezone.utc)
-    # start_time = datetime.now(timezone.utc) - timedelta(seconds=time)
-
-    # Tạo truy vấn Elasticsearch với khoảng thời gian
-
     # Tạo truy vấn Elasticsearch với khoảng thời gian
     query = {
-        "size": 0,
-        "query": {
-          "range": {
-            "@timestamp": {
-              "gte": "now-"+str(time)+"s",
-              "lte": "now"
-            }
-          }
-        },
-        "aggs": {
-          "hosts": {
-            "terms": {
-              "field": "service.address",
-              "size": 10
+      "sort": [{"@timestamp": {"order": "desc"}}],
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "match": {
+                "event.dataset": "tomcat.requests"
+              }
             },
-            "aggs": {
-              "max_cons": {
-                "max": {
-                  "field": "tomcat.requests.errors.total"
+            {
+              "range": {
+                "@timestamp": {
+                  "gte": "now-30s",
+                  "lte": "now"
                 }
               }
             }
-          }
+          ]
         }
+      }
     }
-
     
     response = es.search(index=datastream_name, body=query)
     alert = []
+    count = 0
+    total = 0
+    host_name=""
     # Kiểm tra và xử lý kết quả
-    if response["aggregations"]["hosts"]["buckets"]:
-        for host in response["aggregations"]["hosts"]["buckets"]:
-            host_name = host["key"]
-            host_name = host_name[:host_name.index("/jolokia")]
-            con = host["max_cons"]["value"]
-            if con >= max_con:
-              # notification.notify(
-              #      message="Tomcat {} reached the warning limit: {:.0f} error".format(host_name,con),
-              #       timeout=3,
-              #   )
-              message="Tomcat {} reached the warning limit: {:.0f} error".format(host_name,con)
-              alert.append(message)
-    else:
-        print("No records found.")
-        
-
+    if response["hits"]["hits"]:
+        for hit in response["hits"]["hits"]:
+            source = hit["_source"]
+            if(count ==0):
+              total = source["tomcat"]["requests"]["total"]
+              host_name = source["service"]["address"]
+              host_name = host_name[:host_name.index("/jolokia")]
+            if(count == 1):
+              total -= source["tomcat"]["requests"]["total"]
+            if(count >= 2):
+              break
+            count+=1
+    if count == 2 and total>max_con:
+      message="Tomcat {} reached the warning limit: {:.0f} requests".format(host_name,total)
+      alert.append(message)
+      
+            
+    
+            
+    # Kiểm tra và xử lý kết quả
+    
     # Đóng kết nối Elasticsearch
     # es.close()
     return alert
 
-def get_tomcat_total_error_percent(max_con, time):
+def get_tomcat_new_error(max_con, time):
     datastream_name = "metrics-tomcat-metric"
     # Thay đổi địa chỉ Elasticsearch, thông tin xác thực, và phiên bản Elasticsearch theo tài khoản của bạn
     # es = Elasticsearch(
@@ -659,18 +653,18 @@ def get_tomcat_total_error_percent(max_con, time):
             #         message="New error: {}".format(code),
             #         timeout=3,
             #     )
-            message="Tomcat {} reached the warning limit: {:.0f} error".format(err,code)
+            message="Tomcat {} reached the warning limit: {:.0f} error".format(host,code)
             alert.append(message)
-    else:
-        print("No records found.")
+    
         
 
     # Đóng kết nối Elasticsearch
     # es.close()
     return alert
 
-
-# get_mongodb_cons(0,20,"https://localhost:9200/","elastic","ductho")
+# create_elastic_cons("https://localhost:9200/","elastic","ductho")
+# get_mysql_error(10)
+# end_elastic_cons()
 
 # Gọi hàm để lấy 10 kết quả mới nhất
 # Lặp lại truy vấn mỗi 10 giây
@@ -682,4 +676,3 @@ def get_tomcat_total_error_percent(max_con, time):
 
 # my_scheduler = sched.scheduler(time.time, time.sleep)
 # my_scheduler.enter(10, 1, run_memory_check, (my_scheduler,))
-# my_scheduler.run()

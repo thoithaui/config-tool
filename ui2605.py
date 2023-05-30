@@ -14,6 +14,7 @@ from threading import Thread
 import subprocess
 from subprocess import PIPE, Popen
 import sched, time
+import pyuac
 from plyer import notification
 import os
 import shutil
@@ -29,14 +30,15 @@ from config_file import (
     logstash_conf
 )
 from config_script import (metric_create_ps1,filebeat_create_ps1,logstash_create_ps1)
-from get_data_elasticsearch import (get_max_cpu, get_max_memory, get_mysql_max_connected, get_mysql_error, get_mongodb_cons, get_mongodb_queue, create_elastic_cons, end_elastic_cons)
+from get_data_elasticsearch import (get_max_cpu, get_max_memory, get_mysql_max_connected, get_mysql_error, get_mongodb_cons, get_mongodb_queue, create_elastic_cons, end_elastic_cons, get_tomcat_total_error)
 from PyQt5.QtGui import QTextCursor
+from send_notification import send_notification
 
 # Lặp lại truy vấn
-def run_memory_check(scheduler):
+def run_scheduler_alarm(scheduler):
     # schedule the next call first
     try:
-        scheduler.enter(time_loop, 1, run_memory_check, (scheduler,))
+        scheduler.enter(time_loop, 1, run_scheduler_alarm, (scheduler,))
         if memory:
             mess = []
             mess_memory = get_max_memory(memory_max, time_loop)
@@ -47,6 +49,8 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
     
         if cpu:
             mess = []
@@ -58,6 +62,8 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
                 
         if mysql_cons:
             mess = []
@@ -69,6 +75,8 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
                 
         if mysql_error:
             mess = []
@@ -80,6 +88,8 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
                 
         if mongo_cons:
             mess = []
@@ -91,6 +101,8 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
                 
         if mongo_lock:
             mess = []
@@ -102,14 +114,26 @@ def run_memory_check(scheduler):
                 for m in mess:
                     mess_noti+=m+"\n"
                 notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
+        
+        if tomcat_cons:
+            mess = []
+            mess_t = get_tomcat_total_error(tomcat_max_cons, time_loop)
+            for m in mess_t:
+                mess.append(m)
+            if len(mess) > 0:
+                mess_noti = ""
+                for m in mess:
+                    mess_noti+=m+"\n"
+                notification.notify(message=mess_noti,timeout=3,)
+                if len(ip_list) > 0:
+                    send_notification(ip_list, mess_noti)
             
     except Exception as e:
         QMessageBox.critical(None, "Error", f"Error: {str(e)}")
     
-    
-    
 alarm_scheduler = sched.scheduler(time.time, time.sleep)
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -272,7 +296,7 @@ class Ui_MainWindow(object):
         self.groupBox_14.setGeometry(QtCore.QRect(400, 380, 431, 81))
         self.groupBox_14.setObjectName("groupBox_14")
         self.layoutWidget_9 = QtWidgets.QWidget(self.groupBox_14)
-        self.layoutWidget_9.setGeometry(QtCore.QRect(200, 20, 220, 41))
+        self.layoutWidget_9.setGeometry(QtCore.QRect(240, 20, 220, 41))
         self.layoutWidget_9.setObjectName("layoutWidget_9")
         self.gridLayout_16 = QtWidgets.QGridLayout(self.layoutWidget_9)
         self.gridLayout_16.setContentsMargins(0, 0, 0, 0)
@@ -848,17 +872,17 @@ class Ui_MainWindow(object):
         self.mysql_error_check.setText(_translate("MainWindow", "New error"))
         self.mysql_cons_check.setText(_translate("MainWindow", "Max connections"))
         self.groupBox_14.setTitle(_translate("MainWindow", "Tomcat"))
-        self.tomcat_percent_check.setText(_translate("MainWindow", "Max  error percent"))
-        self.label_18.setText(_translate("MainWindow", "%"))
-        self.tomcat_maxerr_check.setText(_translate("MainWindow", "max error"))
+        self.tomcat_percent_check.setText(_translate("MainWindow", "New server error"))
+        self.label_18.setText(_translate("MainWindow", " "))
+        self.tomcat_maxerr_check.setText(_translate("MainWindow", "Max requests"))
         self.groupBox_15.setTitle(_translate("MainWindow", "Mongodb"))
         self.mongo_lock_check.setText(_translate("MainWindow", "max global lock"))
         self.mongo_max_con_check.setText(_translate("MainWindow", "Max connections"))
         self.groupBox_5.setTitle(_translate("MainWindow", "Metricbeat"))
         self.label_7.setText(_translate("MainWindow", "Source path"))
         self.metric_source.setPlaceholderText(_translate("MainWindow", "C:\\metricbeat"))
-        self.metric_conf.setText(_translate("MainWindow", "Config"))
-        self.metri_cmd.setText(_translate("MainWindow", "Run Cmd"))
+        self.metric_conf.setText(_translate("MainWindow", "Save config"))
+        self.metri_cmd.setText(_translate("MainWindow", "Run with cmd"))
         self.metric_create_service.setText(_translate("MainWindow", "Create service"))
         self.metric_start.setText(_translate("MainWindow", "Start service"))
         self.metric_stop.setText(_translate("MainWindow", "Stop service"))
@@ -879,8 +903,8 @@ class Ui_MainWindow(object):
         self.label_16.setText(_translate("MainWindow", "MySQL hosts   "))
         self.g_mysql_host.setPlaceholderText(_translate("MainWindow", "user:pass@tcp(host:port)"))
         self.groupBox_6.setTitle(_translate("MainWindow", "Filebeat"))
-        self.filebeat_conf.setText(_translate("MainWindow", "Config"))
-        self.filebeat_cmd.setText(_translate("MainWindow", "Run Cmd"))
+        self.filebeat_conf.setText(_translate("MainWindow", "Save config"))
+        self.filebeat_cmd.setText(_translate("MainWindow", "Run with cmd"))
         self.filebeat_service.setText(_translate("MainWindow", "Create service"))
         self.filebeat_start.setText(_translate("MainWindow", "Start service"))
         self.filebeat_stop.setText(_translate("MainWindow", "Stop service"))
@@ -890,9 +914,9 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Service name"))
         self.filebeat_name.setText(_translate("MainWindow", "filebeat"))
         self.filebeat_name.setPlaceholderText(_translate("MainWindow", "filebeat"))
-        self.label_21.setText(_translate("MainWindow", "Tomcat logs path"))
+        self.label_21.setText(_translate("MainWindow", "Tomcat logs paths"))
         self.filebeat_tomcat_path.setPlaceholderText(_translate("MainWindow", "host:port"))
-        self.label_22.setText(_translate("MainWindow", "MySQL logs path "))
+        self.label_22.setText(_translate("MainWindow", "MySQL logs paths "))
         self.filebeat_mysql_path.setPlaceholderText(_translate("MainWindow", "user:pass@tcp(host:port)"))
         self.label_11.setText(_translate("MainWindow", "Modules"))
         self.filebeat_tomcat.setText(_translate("MainWindow", "Tomcat"))
@@ -905,8 +929,8 @@ class Ui_MainWindow(object):
         self.g_logstash_host.setText(_translate("MainWindow", "localhost:5044"))
         self.g_logstash_host.setPlaceholderText(_translate("MainWindow", "host:port"))
         self.groupBox_8.setTitle(_translate("MainWindow", "Logstash"))
-        self.logstash_config.setText(_translate("MainWindow", "Config"))
-        self.logstash_cmd.setText(_translate("MainWindow", "Run Cmd"))
+        self.logstash_config.setText(_translate("MainWindow", "Save config"))
+        self.logstash_cmd.setText(_translate("MainWindow", "Run with cmd"))
         self.logstash_service.setText(_translate("MainWindow", "Create service"))
         self.logstash_start.setText(_translate("MainWindow", "Start service"))
         self.logstash_stop.setText(_translate("MainWindow", "Stop service"))
@@ -963,6 +987,7 @@ class Ui_MainWindow(object):
         self.action_Logstash.triggered.connect(lambda: self.main_windows.setCurrentIndex(2))
         self.logstash_other.stateChanged.connect(self.on_checkbox_logstash_other_changed)
         self.main_windows.setCurrentIndex(0)
+        self.tomcat_percent.setVisible(False)
         #alert
         self.closeBtn.clicked.connect(self.close_event)
         self.endBtn.clicked.connect(self.end_event)
@@ -1423,7 +1448,7 @@ class Ui_MainWindow(object):
             global loop
             loop = self.timeSpinBox.value()
             # create a thread
-            alarm_scheduler.enter(loop, 1, run_memory_check, (alarm_scheduler,))
+            alarm_scheduler.enter(loop, 1, run_scheduler_alarm, (alarm_scheduler,))
             thread = Thread(target=run_scheduler)
             # run the thread
             thread.start()
@@ -1434,20 +1459,25 @@ class Ui_MainWindow(object):
             QMessageBox.critical(None, "Error", f"Error: {str(e)}")
 
     def run_alarm(self):
-        global time_loop, memory, cpu,mysql_error,mysql_cons,mongo_cons,mongo_lock
-        time_loop = int(self.timeSpinBox.value())
-        el_host = self.eHosts.text().strip()
-        el_user = self.eUser.text().strip()
-        el_pass = self.ePassword.text().strip()
-        create_elastic_cons(el_host, el_user, el_pass)
-        memory = False
-        cpu = False
-        mysql_error = False
-        mysql_cons = False
-        mongo_cons = False
-        mongo_lock = False
-
-        try:
+        global time_loop, memory, cpu,mysql_error,mysql_cons,mongo_cons,mongo_lock, tomcat_cons, ip_list
+        try: 
+            
+            time_loop = int(self.timeSpinBox.value())
+            el_host = self.eHosts.text().strip()
+            el_user = self.eUser.text().strip()
+            el_pass = self.ePassword.text().strip()
+            create_elastic_cons(el_host, el_user, el_pass)
+            memory = False
+            cpu = False
+            mysql_error = False
+            mysql_cons = False
+            mongo_cons = False
+            mongo_lock = False
+            tomcat_cons = False
+            ip_list = []
+            ip_text = self.eIPNoti.text().strip()
+            if(ip_text != ""):
+                ip_list = ip_text.split(",")
             if self.memoryCheckBox.isChecked():
                 memory = True
                 global memory_max
@@ -1475,8 +1505,13 @@ class Ui_MainWindow(object):
                 mongo_lock=True
                 global mongo_lock_max
                 mongo_lock_max = self.mongo_lock.value()
+                
+            if self.tomcat_maxerr_check.isChecked():
+                tomcat_cons=True
+                global tomcat_max_cons
+                tomcat_max_cons = self.tomcat_maxerr.value()
             
-            alarm_scheduler.enter(time_loop, 1, run_memory_check, (alarm_scheduler,))
+            alarm_scheduler.enter(time_loop, 1, run_scheduler_alarm, (alarm_scheduler,))
             thread = Thread(target=run_scheduler)
             # run the thread
             thread.start()
@@ -1541,11 +1576,16 @@ if __name__ == "__main__":
     #     import sys
 
     #     app = QtWidgets.QApplication(sys.argv)
+        
     #     MainWindow = QtWidgets.QMainWindow()
     #     ui = Ui_MainWindow()
     #     ui.setupUi(MainWindow)
     #     MainWindow.show()
-    #     sys.exit(app.exec_())
+    
+    # # Ghi đè sys.stdout để chuyển thông tin từ console vào QTextEdit
+    # sys.stdout = ui
+    # print("The tool has started")
+    # sys.exit(app.exec_())
 
     # template
     # def run_script(self):
